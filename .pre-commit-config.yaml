@@ -1,0 +1,21 @@
+repos:
+  - repo: local
+    hooks:
+      - id: update-conda-env
+        name: Update conda environment files
+        entry: bash -c 'if command -v conda &> /dev/null && [[ -n "${CONDA_DEFAULT_ENV}" ]]; then conda env export > environment.yml && conda list --export > requirements.txt && git add environment.yml requirements.txt; fi'
+        language: system
+        stages: [pre-commit]
+        always_run: true
+        pass_filenames: false
+
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.4.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+      - id: check-added-large-files
+        args: ["--maxkb=10240"] # 10MB limit
+      - id: check-case-conflict
+      - id: check-merge-conflict
