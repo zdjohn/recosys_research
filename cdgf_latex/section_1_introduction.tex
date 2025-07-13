@@ -1,0 +1,29 @@
+%!TEX root = ./main.tex
+\section{Introduction}
+
+Recommender systems have become essential in modern life, addressing the challenges posed by rapid data growth and constant product launches occurring every second. By helping users discover personalized products and services within an ever-expanding information landscape, these systems bring efficiency, focus, and simplicity to people's lives – making them high-demand technologies with wide-ranging applications and significant real-world impact.
+
+
+For decades, Matrix Factorization (MF)-based \cite{koren2009matrix}  Collaborative Filtering (CF)  \cite{herlocker2004evaluating} and Neural Factorization3 have dominated recommendation system approaches. These methods predict user preferences by analyzing user-item interactions, projecting both user and item features into a latent space where similarity is calculated through condensed vector representations. However, these approaches face well-documented limitations, particularly regarding cold start problems involving sparse data and new item recommendations. Common mitigation strategies like data warming techniques and frequent model retraining attempt to incorporate new interactions, but often prove inefficient, less timely, and costly to maintain.
+
+Recent advances in recommender systems have seen growing adoption of graph-based approaches \cite{mao2016multirelational,wang2016member}. Techniques like ode2Vec \cite{grover2016node2vec}, DeepWalk \cite{perozzi2014deepwalk}, and Graph Convolutional Networks (GCN) \cite{kipf2016semi} employ random walk strategies and neighborhood message passing to learn user/item representations that capture both local and global structural patterns. Notable applications include NGCF \cite{wang2019neural}, LightGCN for general recommendations, social recommendation systems leveraging interpersonal connections \cite{sun2011pathsim}, and knowledge graph-enhanced methods like KGAT. While these graph embedding methods demonstrate enhanced capability for handling continuously evolving information compared to traditional approaches, graph-based methods face several challenges including computational complexity, over-smoothing in deep architectures, and insufficient user/item data for effective representation learning.
+
+Cross-domain recommendation has emerged as a promising solution for data sparsity challenges through knowledge transfer between domains. This approach leverages richer data from a source domain to enhance user/item representations in a data-scarce target domain, potentially improving recommendation performance. \cite{zhao2019cross, wang2019recsys} However, direct application of source domain data often proves suboptimal, as domain mismatch can introduce confounding patterns that reduce recommendation effectiveness, due to Divergent data distributions and structural patterns between domains, Inherited data sparsity issues in source domains, and noisy data that can negatively impact target domain performance.
+
+We also noticed, most of the existing research had focused on explicit feedback, such as ratings, reviews, incorporate side information beyond the user-item interactions, such as user profiles, item features, etc. In hope of model can learn richer information beyond the implicit interactions.
+However, in many real-world scenarios, even under the age of LLM, extracting effective feature information remains a challenge, and belong to a dedicated research field. Not to mention, the prohibitive computational cost of processing text or multi-modal datasets, while preventing noisy pollution. Implicit feedback, such as click-through data, purchase history, are still the dominant or only training data points available for the recommender system model training.
+
+In this paper we propose a novel framework to address the cold-start recommendation problem by leveraging the information from one or multiple source domains using only implicit feedbacks. We introduce a simple yet effective method boosting performance in the target domain subgraph argumentation, improving both subgraph density and reducing useless noisy information from source domain. Experiments conducted on Amazon review datasets demonstrate that our approach can tackle multiple real world recommendation challenges, including data sparsity, 0-interaction cold start scenarios.
+
+To summaries, our contributions are as follows:
+\begin{itemize}
+    \item We propose a novel recommendation framework (CDGF) that enhances target domain recommender system performance by adapting source domains via an augmented subgraph.
+    \item We illustrate how CDGF can effectively improve target domain using only implicit interactions, implying the model can be applied to a wide range of real-world scenarios.
+    \item Experiments are conducted against variations base line and metics shows promising effects beating well established recommendation models.
+\end{itemize}
+
+The rest of this paper is constructed as follows.
+In section 2, we discuss the related research and relevant definition that helped our research.
+In Section 3, we explain our framework and related algorithms.
+In Section 4, we show our experiment design and result compared with other baselines in cold-start scenario and sufficient data scenario.
+Lastly, we give conclusion and future directions in Section 5.

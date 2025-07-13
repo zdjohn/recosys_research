@@ -1,0 +1,23 @@
+
+\section{Related Works}
+
+This work is related to several research areas, including matrix factorization, graph neural networks, and cross-domain recommender systems. We provide an overview of these areas and discuss how our proposed method builds upon and extends existing approaches.
+
+\subsection{Matrices Factorization based Methods}
+Matrix Factorization (MF)-based and content-based recommender systems have long been foundational approaches in collaborative filtering. MF models, such as Bayesian Personalized Ranking (BPR) \cite{rendle2012bpr}, optimize latent user-item interactions through pairwise ranking loss, enabling personalized recommendations by decomposing interaction matrices into low-dimensional embeddings.
+Extensions like Neural Collaborative Filtering (NCF) \cite{he2017neural} integrate non-linear neural layers to capture complex user-item relationships.
+Content-based systems, in contrast, leverage item attributes (e.g., text, metadata) to recommend similar items, often using techniques like neural embeddings to model feature relevance. Hybrid approaches, such as wide and deep \cite{cheng2016wide}, unify collaborative and content-based signals by modeling feature interactions. Despite their effectiveness, traditional MF models struggle with cold-start scenarios and sparse data, while content-based methods may over-specialize recommendations.
+
+\subsection{Graph Neural Networks based Methods}
+
+Graph-based recommender systems leverage graph neural networks (GNNs) to model complex user-item relationships. GNNs aggregate node features and propagate information across graph structures, enabling embedding learning for users and items. Early models, like Graph Convolutional Networks (GCN) \cite{kipf2016semi}, use spectral convolutions to learn node representations. GAT \cite{veličković2018graphattentionnetworks} improves upon GCN by incorporating attention mechanisms to focus on relevant neighbors. GarphSAGE \cite{hamilton2017inductive} and PinSage \cite{pal2020pinnersage} use inductive learning to generalize to unseen nodes. Heterogeneous GNNs, like HetGNN \cite{shi2018heterogeneous}, extend GNNs to multi-relational graphs, capturing diverse user-item interactions. Despite their flexibility, GNNs face challenges like scalability and over-smoothing, where node representations converge prematurely.
+LightGCN \cite{he2020lightgcn} simplifies GNNs by removing feature transformation and nonlinear activation functions, focusing on user-item interactions.
+Despite their effectiveness, GNNs struggle with the computational complexity of large-scale graphs and the over-smoothing issue. i.e. Nonlinear layers add parameters that may not align with the inherently user-item interactions, and Nonlinear transformations (e.g., ReLU) can distort collaborative signals\cite{Wei2021EffectsON}, especially in shallow networks where linear aggregation suffices to capture user preferences. \cite{Sharma2023ExperimentalHA}
+
+
+\subsection{Cross Domains Recommender Systems}
+
+Cross-domain recommender systems (CDRs) address data sparsity and cold-start problems by transferring knowledge from a richer source domain to a sparser target domain.
+Traditional approaches, such as collective collaborative filtering is a direct extension of general MF based method. for example, CDCR \cite{rafailidis2017collaborative} and DTCDR \cite{DTCDR2019zhu}. Developments leverage deep learning, including review-based methods that utilize textual side information to capture latent user-item interactions. such as, CoNet \cite{Hu_2018}.
+Graph based CDRs, like PPNG \cite{zhao2019cross}, leverage graph structures to propagate user preferences across domains. RecSys-DAN uses adversarial learning to learn user/item latent representations across domains.\cite{wang2019recsys}
+However, challenges like negative transfer and non-overlapping sets persist. Fro CDRs, it also added the challenges on computational complexity and scalability, as the model needs to handle multiple domains with different distributions and structures. The over-smoothing issue also exists in CDRs, as the source domain data may not be optimal for the target domain, which may introduce unwanted noises.

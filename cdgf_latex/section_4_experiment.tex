@@ -1,0 +1,82 @@
+%!TEX root = ./main.tex
+\section{Experiments and Results}
+
+First we will introduce the data set and experiment setup. Then we conduct experiments to evaluate the effectiveness through different scenarios and compare with other state-of-the-art base lines.
+
+
+\subsection{Dataset and experiment setup}
+
+We use amazon dataset for our experiments, which uses only user-item interactions as the input data.
+more specifically, we picked 2 product categories BOOK and MUSIC.
+between the 2 domains, we sampled 642 overlapping uniq users,  see Table \ref{tab:dataset} for more details.
+
+\begin{table}[ht]
+    \centering
+    \begin{tabular}{|c|c|c|c|c|}
+        \hline
+        \textbf{Domain} & \textbf{Users} & \textbf{Items} & \textbf{Interactions} & \textbf{Density} \\ \hline
+        BOOK (Target Domain)          & 642           & 3022         & 8857 & 0.00456               \\ \hline
+        MUSIC (Source Domain)          & 642           & 3507         & 12434 & 0.00641             \\ \hline
+    \end{tabular}
+    \caption{Dataset statistics}
+    \label{tab:dataset}
+\end{table}
+
+\subsubsection{Deriving a denser user-user graph from source domain}
+
+\begin{table}[ht]
+    \centering
+    \begin{tabular}{|c|c|c|c|}
+        \hline
+        \textbf{Domain} & \textbf{Node number}  & \textbf{Edge number} & \textbf{Density} \\ \hline
+        Source user-item       &  4149  & 8857 & 0.00456               \\ \hline
+        Source user-user          & 642 & 46952 & \textbf{0.11391}             \\ \hline
+    \end{tabular}
+    \caption{Source domain user-user graph statistics}
+    \label{tab:source-domain-user-user-graph}
+\end{table}
+
+We argument the source domain user-item graph to user-user graph.
+The process, not only simplifies the source graph. the end results also significantly improves the density of the user-user graph.
+while, it also effectively reduced the noises by discard source items nodes.
+The fact that, the item feature is no use for the target domain recommendation. This also reduces the computational cost of the model.
+see Table \ref{tab:source-domain-user-user-graph} for more details.
+
+
+
+\subsection{Baseline comparison}
+
+Fro the baseline comparison, we compare the following algorithms:
+
+\begin{itemize}
+    \item \textbf{BPR}: Bayesian Personalized Ranking
+    \item \textbf{LightGCN}: Simplifying and Powering Graph Convolution Network for Recommendation
+    \item \textbf{CoNet}: Deep Dual Transfer Cross Domain Recommendation
+\end{itemize}
+
+We use the following evaluation metrics to evaluate the performance of the recommendation algorithms:
+
+\begin{itemize}
+    \item \textbf{Precision@k} (P@k): the proportion of recommended items in the top-k that are relevant to the user.
+    \item \textbf{Recall@k} (R@k): the proportion of relevant items in the top-k that are recommended to the user.
+    \item \textbf{NDCG@k}: Normalized Discounted Cumulative Gain, which is a measure of ranking quality.
+\end{itemize}
+
+
+\subsection{Results}
+
+We compare the performance of the proposed method with the baseline algorithms in terms of Precision@25, Recall@25, and NDCG@25. The results are shown in Table \ref{tab:results}.
+
+\begin{table}[ht]
+    \centering
+    \begin{tabular}{|c|c|c|c|}
+        \hline
+        \textbf{Algorithm} & \textbf{Precision@25} & \textbf{Recall@25} & \textbf{NDCG@25} \\ \hline
+        BPR          & 0.002852 & 0.017115 & 0.009939 \\ \hline
+        LightGCN     & 0.005445 & 0.036747 & 0.024399 \\ \hline
+        CoNet        & 0.003122 & 0.002123 & 0.016799 \\ \hline
+        OURS         & \textbf{0.007714} & \textbf{0.048557} & \textbf{0.028301} \\ \hline
+    \end{tabular}
+    \caption{Results comparison}
+    \label{tab:results}
+\end{table}

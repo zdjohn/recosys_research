@@ -119,12 +119,6 @@ docs/_build/
 site/
 
 __latexindent_temp.tex
-cdgf_latex/main.blg
-cdgf_latex/main.fdb_latexmk
-cdgf_latex/main.fls
-cdgf_latex/main.log
-cdgf_latex/main.pdf
-cdgf_latex/main.synctex.gz
-cdgf_latex/main.aux
-cdgf_latex/main.bbl
-cdgf_latex/main.out
+cdgf_latex/main.*
+!cdgf_latex/main.tex
+!cdgf_latex/main.pdf
