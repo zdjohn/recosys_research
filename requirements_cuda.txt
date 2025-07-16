@@ -1,0 +1,48 @@
+# PyTorch with CUDA support for Linux
+torch==2.6.0+cu121
+torchvision==0.21.0+cu121
+torchaudio==2.6.0+cu121
+
+# PyTorch Geometric with CUDA support
+torch-geometric==2.6.1
+torch-sparse
+torch-scatter
+torch-cluster
+
+# Core scientific computing
+numpy>=1.24.0
+scipy>=1.11.0
+pandas>=2.0.0
+scikit-learn>=1.3.0
+
+# Data processing
+h5py>=3.9.0
+tables>=3.8.0
+
+# ML experiment tracking
+wandb>=0.16.0
+tensorboard>=2.15.0
+
+# Progress and utilities
+tqdm>=4.65.0
+psutil>=5.9.0
+
+# Development tools
+jupyter>=1.0.0
+jupyterlab>=4.0.0
+black>=23.10.0
+flake8>=6.1.0
+pre-commit>=3.5.0
+
+# Visualization
+matplotlib>=3.7.0
+seaborn>=0.12.0
+plotly>=5.17.0
+
+# Additional graph libraries (optional)
+dgl-cu121>=1.1.0  # Deep Graph Library with CUDA 12.1
+ogb>=1.3.6  # Open Graph Benchmark
+
+# Specialized PyTorch extensions
+torchmetrics>=1.2.0
+torch-geometric-temporal  # For temporal graph analysis

@@ -1,0 +1,68 @@
+name: recosys_research_cuda
+channels:
+  - pytorch
+  - nvidia
+  - pyg
+  - conda-forge
+  - defaults
+dependencies:
+  # Core Python
+  - python=3.12
+
+  # CUDA and GPU support
+  - pytorch-cuda=12.1 # CUDA 12.1 support
+  - cudatoolkit=12.1
+
+  # PyTorch ecosystem with CUDA support
+  - pytorch=2.6.0=*cuda* # Ensure CUDA build
+  - torchvision=0.21.0=*cuda*
+  - torchaudio=2.6.0=*cuda*
+
+  # PyTorch Geometric for graph neural networks
+  - pyg=2.6.1 # Latest compatible version
+  - pytorch-sparse # Required for PyG
+  - pytorch-scatter # Required for PyG
+  - pytorch-cluster # Required for PyG
+
+  # Scientific computing and ML
+  - numpy=1.24.3
+  - scipy=1.11.4
+  - scikit-learn=1.3.0
+  - pandas=2.0.3
+
+  # Data processing
+  - h5py=3.9.0
+  - tables=3.8.0
+
+  # Jupyter and development
+  - jupyter=1.0.0
+  - jupyterlab=4.0.8
+  - notebook=7.0.8
+  - ipykernel=6.25.0
+
+  # Visualization
+  - matplotlib=3.7.2
+  - seaborn=0.12.2
+  - plotly=5.17.0
+
+  # Development tools
+  - black=23.10.1
+  - flake8=6.1.0
+  - pre-commit=3.5.0
+
+  # Progress tracking and logging
+  - tqdm=4.65.0
+  - wandb=0.16.0
+
+  # System utilities
+  - psutil=5.9.0
+
+  # Additional PyTorch extensions that may be needed
+  - torchmetrics=1.2.0
+
+  # Pip packages for specialized libraries
+  - pip=23.3.1
+  - pip:
+      - torch-geometric-temporal # For temporal graphs if needed
+      - dgl # Alternative graph library (CUDA compatible)
+      - ogb # Open Graph Benchmark datasets

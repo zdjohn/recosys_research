@@ -1,0 +1,58 @@
+# Docker configuration for CUDA-enabled training environment
+
+FROM nvidia/cuda:12.1-devel-ubuntu22.04
+
+# Set environment variables
+ENV DEBIAN_FRONTEND=noninteractive
+ENV CUDA_HOME=/usr/local/cuda
+ENV PATH=${CUDA_HOME}/bin:${PATH}
+ENV LD_LIBRARY_PATH=${CUDA_HOME}/lib64:${LD_LIBRARY_PATH}
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    wget \
+    bzip2 \
+    ca-certificates \
+    git \
+    vim \
+    htop \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install Miniconda
+RUN wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh && \
+    bash miniconda.sh -b -p /opt/conda && \
+    rm miniconda.sh
+
+ENV PATH=/opt/conda/bin:${PATH}
+
+# Create working directory
+WORKDIR /workspace
+
+# Copy environment files
+COPY environment_cuda.yml requirements_cuda.txt ./
+
+# Create conda environment
+RUN conda env create -f environment_cuda.yml
+
+# Make sure conda environment is activated by default
+ENV CONDA_DEFAULT_ENV=recosys_research_cuda
+ENV PATH=/opt/conda/envs/recosys_research_cuda/bin:${PATH}
+
+# Install additional pip packages if needed
+RUN /opt/conda/envs/recosys_research_cuda/bin/pip install -r requirements_cuda.txt
+
+# Copy source code
+COPY . .
+
+# Set up Jupyter notebook configuration
+RUN mkdir -p /root/.jupyter && \
+    echo "c.NotebookApp.ip = '0.0.0.0'" >> /root/.jupyter/jupyter_notebook_config.py && \
+    echo "c.NotebookApp.port = 8888" >> /root/.jupyter/jupyter_notebook_config.py && \
+    echo "c.NotebookApp.allow_root = True" >> /root/.jupyter/jupyter_notebook_config.py && \
+    echo "c.NotebookApp.token = ''" >> /root/.jupyter/jupyter_notebook_config.py
+
+# Expose port for Jupyter
+EXPOSE 8888
+
+# Default command
+CMD ["/bin/bash"]
