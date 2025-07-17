@@ -1,6 +1,7 @@
 name: recosys_research_cuda
 channels:
   - pytorch
+  - nvidia
   - conda-forge
   - defaults
 dependencies:
@@ -31,7 +32,12 @@ dependencies:
   - tqdm>=4.65.0
   - psutil>=5.9.0
 
-  # PyTorch - will auto-select appropriate version
+  # CUDA toolkit for Linux
+  - cudatoolkit=12.1
+  - nvidia::cuda-toolkit=12.1
+
+  # PyTorch with CUDA support
+  - pytorch::pytorch-cuda=12.1
   - pytorch::pytorch>=2.0.0
   - pytorch::torchvision>=0.15.0
   - pytorch::torchaudio>=2.0.0
@@ -40,8 +46,8 @@ dependencies:
   - wandb>=0.16.0
   - tensorboard>=2.15.0
 
-  # TensorFlow with version constraint
-  - tensorflow>=2.15.0,<3.0.0
+  # TensorFlow with CUDA support
+  - tensorflow-gpu>=2.15.0,<3.0.0
   
   # Keras (included with TensorFlow but explicitly specified)
   - keras>=3.0.0
@@ -49,13 +55,18 @@ dependencies:
   # Pip dependencies for packages not available via conda
   - pip
   - pip:
-      # PyTorch Geometric (will auto-detect CUDA)
+      # PyTorch Geometric with CUDA support
       - torch-geometric>=2.4.0
+      - torch-sparse
+      - torch-scatter
+      - torch-cluster
+
+      # Additional graph libraries
       - ogb>=1.3.6
       - torchmetrics>=1.2.0
       - torch-geometric-temporal
 
-      # Development dependencies that you already have
+      # Development dependencies
       - aiohappyeyeballs>=2.4.3
       - aiohttp>=3.10.0
       - beautifulsoup4>=4.13.0

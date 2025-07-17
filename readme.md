@@ -38,3 +38,5 @@ pre-commit install
 # Run manually (optional)
 pre-commit run --all-files
 ```
+# data sets:
+https://cseweb.ucsd.edu/~jmcauley/datasets/amazon/links.html amazon 2014 for ppgn and ptupcdr datasets
