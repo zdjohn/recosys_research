@@ -53,7 +53,7 @@ ipython_config.py
 *.db
 *.sqlite
 *.sqlite3
-data/
+# data/
 datasets/
 raw_data/
 processed_data/
@@ -122,3 +122,6 @@ __latexindent_temp.tex
 cdgf_latex/main.*
 !cdgf_latex/main.tex
 !cdgf_latex/main.pdf
+
+!models/ppgn/data/data_prepare.py
+!models/ppgn/data/prepare_data.py
