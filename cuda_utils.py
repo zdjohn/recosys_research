@@ -1,6 +1,120 @@
-# Device Configuration for CUDA Training
+"""
+CUDA Utilities for Cross-Platform Development
+
+This module provides utilities for automatically detecting and configuring
+the appropriate compute device (CUDA, MPS, or CPU) based on platform availability.
+"""
 
 import torch
+import platform
+from typing import Union, Dict, Any
+
+try:
+    import tensorflow as tf
+
+    TF_AVAILABLE = True
+except ImportError:
+    TF_AVAILABLE = False
+
+
+def get_device_info() -> Dict[str, Any]:
+    """
+    Get comprehensive device information for PyTorch and TensorFlow.
+
+    Returns:
+        Dict containing device information for both frameworks
+    """
+    info = {
+        "platform": platform.system(),
+        "architecture": platform.machine(),
+        "pytorch": get_pytorch_device_info(),
+        "tensorflow": (
+            get_tensorflow_device_info()
+            if TF_AVAILABLE
+            else {"error": "TensorFlow not available"}
+        ),
+    }
+    return info
+
+
+def get_pytorch_device_info() -> Dict[str, Any]:
+    """Get PyTorch device information."""
+    info = {
+        "version": torch.__version__,
+        "cuda_available": torch.cuda.is_available(),
+        "mps_available": hasattr(torch.backends, "mps")
+        and torch.backends.mps.is_available(),
+        "device_count": 0,
+        "devices": [],
+    }
+
+    if info["cuda_available"]:
+        info["cuda_version"] = getattr(torch.version, "cuda", "Unknown")
+        info["device_count"] = torch.cuda.device_count()
+        for i in range(info["device_count"]):
+            device_info = {
+                "id": i,
+                "name": torch.cuda.get_device_name(i),
+                "memory_gb": torch.cuda.get_device_properties(i).total_memory
+                / (1024**3),
+                "compute_capability": torch.cuda.get_device_capability(i),
+            }
+            info["devices"].append(device_info)
+
+    return info
+
+
+def get_tensorflow_device_info() -> Dict[str, Any]:
+    """Get TensorFlow device information."""
+    if not TF_AVAILABLE:
+        return {"error": "TensorFlow not available"}
+
+    info = {"version": tf.__version__, "gpu_devices": [], "gpu_count": 0}
+
+    try:
+        gpus = tf.config.list_physical_devices("GPU")
+        info["gpu_count"] = len(gpus)
+
+        for i, gpu in enumerate(gpus):
+            device_info = {"id": i, "name": gpu.name, "device_type": gpu.device_type}
+
+            try:
+                details = tf.config.experimental.get_device_details(gpu)
+                device_info.update(details)
+            except:
+                pass
+
+            info["gpu_devices"].append(device_info)
+
+    except Exception as e:
+        info["error"] = str(e)
+
+    return info
+
+
+def get_optimal_device(prefer_gpu: bool = True) -> str:
+    """
+    Get the optimal PyTorch device based on availability.
+
+    Args:
+        prefer_gpu: Whether to prefer GPU over CPU when available
+
+    Returns:
+        Device string ('cuda', 'mps', or 'cpu')
+    """
+    if not prefer_gpu:
+        return "cpu"
+
+    # Check CUDA availability (Linux/Windows)
+    if torch.cuda.is_available():
+        return "cuda"
+
+    # Check MPS availability (Mac M1/M2/M3)
+    if hasattr(torch.backends, "mps") and torch.backends.mps.is_available():
+        return "mps"
+
+    # Fallback to CPU
+    return "cpu"
 
 
 def get_device(prefer_cuda=True, device_id=0):
@@ -20,72 +134,125 @@ def get_device(prefer_cuda=True, device_id=0):
         print(
             f"GPU Memory: {torch.cuda.get_device_properties(device_id).total_memory / 1024**3:.1f} GB"
         )
+        return device
+    elif hasattr(torch.backends, "mps") and torch.backends.mps.is_available():
+        device = torch.device("mps")
+        print("Using Metal Performance Shaders (MPS) for Mac GPU acceleration")
+        return device
     else:
         device = torch.device("cpu")
-        print("Using CPU device")
-        if prefer_cuda and not torch.cuda.is_available():
-            print("WARNING: CUDA was requested but is not available")
-
-    return device
+        print("Using CPU")
+        return device
 
 
-def setup_cuda_optimizations():
+def setup_tensorflow_gpu():
     """
-    Setup CUDA optimizations for better performance.
+    Configure TensorFlow for optimal GPU usage.
+
+    This function sets up memory growth and mixed precision if available.
     """
-    if torch.cuda.is_available():
-        # Enable benchmarking for consistent input sizes
-        torch.backends.cudnn.benchmark = True
+    if not TF_AVAILABLE:
+        print("TensorFlow not available")
+        return
 
-        # Enable deterministic operations (may reduce performance)
-        # torch.backends.cudnn.deterministic = True
+    gpus = tf.config.list_physical_devices("GPU")
 
-        # Set memory fraction to prevent OOM errors
-        # torch.cuda.set_per_process_memory_fraction(0.8)
+    if gpus:
+        try:
+            # Enable memory growth to avoid allocating all GPU memory at once
+            for gpu in gpus:
+                tf.config.experimental.set_memory_growth(gpu, True)
 
-        print("CUDA optimizations enabled")
+            # Set up mixed precision for better performance on compatible GPUs
+            try:
+                policy = tf.keras.mixed_precision.Policy("mixed_float16")
+                tf.keras.mixed_precision.set_global_policy(policy)
+                print(f"Mixed precision enabled: {policy.name}")
+            except Exception as e:
+                print(f"Mixed precision not available: {e}")
+
+            print(f"TensorFlow configured for {len(gpus)} GPU(s)")
+
+        except Exception as e:
+            print(f"Error configuring TensorFlow GPU: {e}")
     else:
-        print("CUDA not available - skipping CUDA optimizations")
+        print("No GPUs found. TensorFlow will use CPU.")
 
 
-def check_cuda_memory():
-    """
-    Check and print CUDA memory usage.
-    """
-    if torch.cuda.is_available():
-        for i in range(torch.cuda.device_count()):
-            print(f"GPU {i}:")
-            print(f"  Allocated: {torch.cuda.memory_allocated(i) / 1024**3:.2f} GB")
-            print(f"  Reserved: {torch.cuda.memory_reserved(i) / 1024**3:.2f} GB")
+def print_device_summary():
+    """Print a comprehensive summary of available devices."""
+    info = get_device_info()
+
+    print("=" * 60)
+    print("DEVICE SUMMARY")
+    print("=" * 60)
+    print(f"Platform: {info['platform']} ({info['architecture']})")
+    print()
+
+    # PyTorch info
+    print("PyTorch:")
+    print(f"  Version: {info['pytorch']['version']}")
+    print(f"  CUDA Available: {info['pytorch']['cuda_available']}")
+    print(f"  MPS Available: {info['pytorch']['mps_available']}")
+    print(f"  Optimal Device: {get_optimal_device()}")
+
+    if info["pytorch"]["cuda_available"]:
+        print(f"  CUDA Version: {info['pytorch']['cuda_version']}")
+        print(f"  GPU Count: {info['pytorch']['device_count']}")
+        for device in info["pytorch"]["devices"]:
             print(
-                f"  Total: {torch.cuda.get_device_properties(i).total_memory / 1024**3:.2f} GB"
+                f"    GPU {device['id']}: {device['name']} ({device['memory_gb']:.1f} GB)"
             )
+    print()
+
+    # TensorFlow info
+    if TF_AVAILABLE and "error" not in info["tensorflow"]:
+        print("TensorFlow:")
+        print(f"  Version: {info['tensorflow']['version']}")
+        print(f"  GPU Count: {info['tensorflow']['gpu_count']}")
+
+        if info["tensorflow"]["gpu_count"] > 0:
+            for device in info["tensorflow"]["gpu_devices"]:
+                print(f"    GPU {device['id']}: {device['name']}")
+        else:
+            print("    Using CPU only")
     else:
-        print("CUDA not available")
+        print("TensorFlow: Not available or error occurred")
+
+    print("=" * 60)
 
 
-def clear_cuda_cache():
+def create_torch_device(device_id: Union[int, str, None] = None) -> torch.device:
     """
-    Clear CUDA cache to free up GPU memory.
+    Create a PyTorch device object with automatic fallback.
+
+    Args:
+        device_id: Specific device ID or device string. If None, uses optimal device.
+
+    Returns:
+        PyTorch device object
     """
-    if torch.cuda.is_available():
-        torch.cuda.empty_cache()
-        print("CUDA cache cleared")
+    if device_id is None:
+        device_str = get_optimal_device()
+    elif isinstance(device_id, int):
+        optimal = get_optimal_device()
+        if optimal == "cpu":
+            device_str = "cpu"
+        else:
+            device_str = f"{optimal}:{device_id}"
     else:
-        print("CUDA not available")
+        device_str = str(device_id)
+
+    try:
+        device = torch.device(device_str)
+        # Test if device is actually available
+        test_tensor = torch.randn(1).to(device)
+        return device
+    except Exception as e:
+        print(f"Warning: Could not use device '{device_str}': {e}")
+        print("Falling back to CPU")
+        return torch.device("cpu")
 
 
-# Example usage in training scripts:
 if __name__ == "__main__":
-    # Setup device
-    device = get_device(prefer_cuda=True)
-
-    # Setup optimizations
-    setup_cuda_optimizations()
-
-    # Example model movement to device
-    # model = YourModel()
-    # model = model.to(device)
-
-    # Check memory
-    check_cuda_memory()
+    print_device_summary()
